@@ -75,14 +75,15 @@ RUN chown -R webapp /usr/src/app && chmod -R oug-w /usr/src/app
 
 # Run everything as the unprivileged user
 USER webapp
-
+CMD [ "/bin/bash", "-c", "echo DJANGO_AWS_S3_ENDPOINT_URL=gcp"]
+CMD ["tail", "-f" ,"/dev/null"]
 # Use gunicorn as a web-server after running migration command
-CMD gunicorn \
-	--name botolphs \
-	--bind :$PORT \
-	--workers 3 \
-	--log-level=info \
-	--log-file=- \
-	--access-logfile=- \
-	--capture-output \
-	botolphs.wsgi
+#CMD gunicorn \
+#	--name botolphs \
+#	--bind :$PORT \
+#	--workers 3 \
+#	--log-level=info \
+#	--log-file=- \
+#	--access-logfile=- \
+#	--capture-output \
+#	botolphs.wsgi
