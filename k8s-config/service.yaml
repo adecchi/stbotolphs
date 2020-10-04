@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: stbotolphs-nlb-service
+  namespace: stbotolphs
+spec:
+  selector:
+    app: stbotolphs
+    department: engineering
+  type: LoadBalancer
+  ports:
+  - port: 80
+    targetPort: 8080
