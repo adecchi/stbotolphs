@@ -9,7 +9,7 @@ steps:
 - name: "gcr.io/cloud-builders/gke-deploy"
   args:
   - run
-  - --filename=kubernetes-config-file
-  - --image=gcr.io/project-id/image:tag
+  - --filename=k8s-config
+  - --image=gcr.io/stbotolphs-291315/stbotolphs
   - --location=europe-west2
   - --cluster=stbotolphs-gke
