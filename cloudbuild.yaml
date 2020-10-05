@@ -1,15 +1,15 @@
 steps:
   # build the container image
 - name: "gcr.io/cloud-builders/docker"
-  args: ["build", "-t", "gcr.io/stbotolphs-291315/stbotolphs", "."]
+  args: ["build", "-t", "gcr.io/direct-obelisk-291614/stbotolphs", "."]
   # push container image
 - name: "gcr.io/cloud-builders/docker"
-  args: ["push", "gcr.io/stbotolphs-291315/stbotolphs"]
+  args: ["push", "gcr.io/direct-obelisk-291614/stbotolphs"]
   # deploy container image to GKE
 - name: "gcr.io/cloud-builders/gke-deploy"
   args:
   - run
   - --filename=k8s-config
-  - --image=gcr.io/stbotolphs-291315/stbotolphs
+  - --image=gcr.io/direct-obelisk-291614/stbotolphs
   - --location=europe-west2
   - --cluster=stbotolphs-gke
