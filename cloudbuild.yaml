@@ -29,8 +29,8 @@ steps:
   - |
     source /workspace/postgres_vars &&
     source /workspace/django_vars &&
-    sed -i "s|%POSTGRES_DB%/$$POSTGRES_DB|g" Dockerfile &&
-    sed -i "s|%POSTGRES_USER%/$$POSTGRES_USER|g" Dockerfile
+    sed -i "s|%POSTGRES_DB%/'$$POSTGRES_DB'|g" Dockerfile &&
+    sed -i "s|%POSTGRES_USER%/'$$POSTGRES_USER'|g" Dockerfile
     #sed -i "s|%POSTGRES_PASSWORD%/'$$POSTGRES_PASSWORD'|g' Dockerfile &&
     #sed -i "s|%DJANGO_DB_HOST%/'$$DJANGO_DB_HOST'|g' Dockerfile &&
     #sed -i "s|%DJANGO_DB_NAME%/'$$DJANGO_DB_NAME'|g' Dockerfile &&
