@@ -1,6 +1,6 @@
 steps:
 - id: "Store Values"
-- name: 'gcr.io/cloud-builders/gcloud'
+  name: 'gcr.io/cloud-builders/gcloud'
   entrypoint: 'bash'
   args:
   - '-c'
@@ -12,24 +12,24 @@ steps:
     env | grep "^POSTGRES_" > /workspace/build_vars
 
 - id: "Load Values"
-- name: 'gcr.io/cloud-builders/git'
+  name: 'gcr.io/cloud-builders/git'
   entrypoint: 'bash'
   args:
   - '-c'
   - |
     source /workspace/build_vars &&
     sed -i 's/%POSTGRES_DB%/'$$POSTGRES_DB'/g' Dockerfile &&
-    echo $POSTGRES_DB
-  env:
-  - 
-  # build the container image
-- name: "gcr.io/cloud-builders/docker"
+
+- id: "Sbuild the container image"
+  name: "gcr.io/cloud-builders/docker"
   args: ["build", "-t", "gcr.io/direct-obelisk-291614/stbotolphs", "."]
-  # push container image
-- name: "gcr.io/cloud-builders/docker"
+
+- id: "Push container image"
+  name: "gcr.io/cloud-builders/docker"
   args: ["push", "gcr.io/direct-obelisk-291614/stbotolphs"]
-  # deploy container image to GKE
-- name: "gcr.io/cloud-builders/gke-deploy"
+
+- id: "Deploy container image to GKE"
+  name: "gcr.io/cloud-builders/gke-deploy"
   args:
   - run
   - --filename=k8s-config
