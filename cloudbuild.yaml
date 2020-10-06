@@ -16,7 +16,7 @@ steps:
   - '-c'
   - |
     source /workspace/build_vars &&
-    sed -i 's/%POSTGRES_DB%/'${$POSTGRES_DB}'/g' Dockerfile
+    sed -i 's/%POSTGRES_DB%/'$POSTGRES_DB'/g' Dockerfile
   # build the container image
 - name: "gcr.io/cloud-builders/docker"
   args: ["build", "-t", "gcr.io/direct-obelisk-291614/stbotolphs", "."]
