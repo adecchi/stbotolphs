@@ -17,7 +17,7 @@ steps:
   - '-c'
   - |
     source /workspace/build_vars &&
-    sed -i 's/%POSTGRES_DB%/'$$POSTGRES_DB'/g' Dockerfile &&
+    sed -i 's/%POSTGRES_DB%/'$$POSTGRES_DB'/g' Dockerfile
 
 - id: "Sbuild the container image"
   name: "gcr.io/cloud-builders/docker"
