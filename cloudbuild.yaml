@@ -1,4 +1,5 @@
 steps:
+- id: "Store Values"
 - name: 'gcr.io/cloud-builders/gcloud'
   entrypoint: 'bash'
   args:
@@ -9,15 +10,18 @@ steps:
     export POSTGRES_PASSWORD=`gcloud secrets versions access latest --secret=POSTGRES_PASSWORD --format='get(payload.data)' | base64 -d` &&
     # write all "POSTGRES_" variables to the persistent volume "/workspace"
     env | grep "^POSTGRES_" > /workspace/build_vars
-  # Search and replace variable
-- name: 'gcr.io/cloud-builders/gcloud'
+
+- id: "Load Values"
+- name: 'gcr.io/cloud-builders/git'
   entrypoint: 'bash'
   args:
   - '-c'
   - |
     source /workspace/build_vars &&
-    sed -i 's/%POSTGRES_DB%/'$POSTGRES_DB'/g' Dockerfile &&
+    sed -i 's/%POSTGRES_DB%/'$$POSTGRES_DB'/g' Dockerfile &&
     echo $POSTGRES_DB
+  env:
+  - 
   # build the container image
 - name: "gcr.io/cloud-builders/docker"
   args: ["build", "-t", "gcr.io/direct-obelisk-291614/stbotolphs", "."]
