@@ -15,6 +15,6 @@ spec:
     spec:
       containers:
       - name: stbotolphs
-        image: gcr.io/stbotolphs-291315/stbotolphs
+        image: gcr.io/direct-obelisk-291614/stbotolphs
         ports:
         - containerPort: 8080
