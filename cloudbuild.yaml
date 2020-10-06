@@ -29,20 +29,19 @@ steps:
   - |
     source /workspace/postgres_vars &&
     source /workspace/django_vars &&
-    sed -i "s|%POSTGRES_DB%/'$$POSTGRES_DB'|g" Dockerfile &&
-    sed -i "s|%POSTGRES_USER%/'$$POSTGRES_USER'|g" Dockerfile
-    #sed -i "s|%POSTGRES_PASSWORD%/'$$POSTGRES_PASSWORD'|g' Dockerfile &&
-    #sed -i "s|%DJANGO_DB_HOST%/'$$DJANGO_DB_HOST'|g' Dockerfile &&
-    #sed -i "s|%DJANGO_DB_NAME%/'$$DJANGO_DB_NAME'|g' Dockerfile &&
-    #sed -i "s|%DJANGO_DB_USER%/'$$DJANGO_DB_USER'|g' Dockerfile &&
-    #sed -i "s|%DJANGO_DB_PASSWORD%/'$$DJANGO_DB_PASSWORD'|g' Dockerfile &&
-    #sed -i "s|%DJANGO_AWS_ACCESS_KEY_ID%/'$$DJANGO_AWS_ACCESS_KEY_ID'|g' Dockerfile &&
-    #sed -i "s|%DJANGO_AWS_SECRET_ACCESS_KEY%/'$$DJANGO_AWS_SECRET_ACCESS_KEY'|g' Dockerfile &&
-    #sed -i "s|%DJANGO_AWS_STORAGE_BUCKET_NAME%/'$$DJANGO_AWS_STORAGE_BUCKET_NAME'|g' Dockerfile &&
-    #sed -i "s|%DJANGO_AWS_S3_ENDPOINT_URL%/'$$DJANGO_AWS_S3_ENDPOINT_URL'|g' Dockerfile &&
-    #sed -i "s|%DJANGO_AWS_S3_REGION_NAME%/'$$DJANGO_AWS_S3_REGION_NAME'|g' Dockerfile &&
-    #sed -i "s|%DJANGO_AWS_S3_HOST%/'$$DJANGO_AWS_S3_HOST'|g' Dockerfile
-
+    sed -i 's|%POSTGRES_DB%/'$$POSTGRES_DB'|g';
+    's|%POSTGRES_USER%/'$$POSTGRES_USER'|g';
+    's|%POSTGRES_PASSWORD%/'$$POSTGRES_PASSWORD'|g';
+    's|%DJANGO_DB_HOST%/'$$DJANGO_DB_HOST'|g';
+    's|%DJANGO_DB_NAME%/'$$DJANGO_DB_NAME'|g';
+    's|%DJANGO_DB_USER%/'$$DJANGO_DB_USER'|g';
+    's|%DJANGO_DB_PASSWORD%/'$$DJANGO_DB_PASSWORD'|g';
+    's|%DJANGO_AWS_ACCESS_KEY_ID%/'$$DJANGO_AWS_ACCESS_KEY_ID'|g';
+    's|%DJANGO_AWS_SECRET_ACCESS_KEY%/'$$DJANGO_AWS_SECRET_ACCESS_KEY'|g';
+    's|%DJANGO_AWS_STORAGE_BUCKET_NAME%/'$$DJANGO_AWS_STORAGE_BUCKET_NAME'|g';
+    's|%DJANGO_AWS_S3_ENDPOINT_URL%/'$$DJANGO_AWS_S3_ENDPOINT_URL'|g';
+    's|%DJANGO_AWS_S3_REGION_NAME%/'$$DJANGO_AWS_S3_REGION_NAME'|g';
+    's|%DJANGO_AWS_S3_HOST%/'$$DJANGO_AWS_S3_HOST'|g' Dockerfile
 - id: "Sbuild the container image"
   name: "gcr.io/cloud-builders/docker"
   args: ["build", "-t", "gcr.io/direct-obelisk-291614/stbotolphs", "."]
