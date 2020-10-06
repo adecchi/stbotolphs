@@ -37,7 +37,7 @@ ENV DJANGO_AWS_S3_HOST=minio
 
 # Ensure packages are up to date and install some useful utilities
 RUN apk update && apk add git vim postgresql-dev libffi-dev gcc musl-dev \
-	libxml2-dev libxslt-dev libjpeg-turbo-dev
+	libxml2-dev libxslt-dev libjpeg-turbo-dev curl
 
 # From now on, work in the application directory
 WORKDIR /usr/src/app
