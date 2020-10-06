@@ -8,11 +8,10 @@ steps:
     export POSTGRES_DB=`gcloud secrets versions access latest --secret=POSTGRES_DB --format='get(payload.data)' | base64 -d` &&
     export POSTGRES_USER=`gcloud secrets versions access latest --secret=POSTGRES_USER --format='get(payload.data)' | base64 -d` &&
     export POSTGRES_PASSWORD=`gcloud secrets versions access latest --secret=POSTGRES_PASSWORD --format='get(payload.data)' | base64 -d` &&
-    # write all "POSTGRES_" variables to the persistent volume "/workspace"
     env | grep "^POSTGRES_" > /workspace/build_vars
 
 - id: "Load Values"
-  name: 'gcr.io/cloud-builders/git'
+  name: 'gcr.io/cloud-builders/gcloud'
   entrypoint: 'bash'
   args:
   - '-c'
