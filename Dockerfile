@@ -10,9 +10,9 @@ ENV POSTGRES_PASSWORD=%POSTGRES_PASSWORD%
 # values with differing names.
 ENV DJANGO_DB_ENGINE=django.db.backends.postgresql
 ENV DJANGO_DB_HOST=%DJANGO_DB_HOST%
-ENV DJANGO_DB_NAME=%POSTGRES_DB%
-ENV DJANGO_DB_USER=%POSTGRES_USER%
-ENV DJANGO_DB_PASSWORD=%POSTGRES_PASSWORD%
+ENV DJANGO_DB_NAME=%DJANGO_DB_NAME%
+ENV DJANGO_DB_USER=%DJANGO_DB_USER%
+ENV DJANGO_DB_PASSWORD=%DJANGO_DB_PASSWORD%
 ENV DJANGO_DB_CONN_MAX_AGE=60
 ENV DJANGO_DB_PORT=15432
 
@@ -70,7 +70,6 @@ RUN chown -R webapp /usr/src/app && chmod -R oug-w /usr/src/app
 
 # Run everything as the unprivileged user
 USER webapp
-CMD [ "/bin/bash", "-c", "echo DJANGO_AWS_S3_ENDPOINT_URL=gcp"]
 CMD ["tail", "-f" ,"/dev/null"]
 # Use gunicorn as a web-server after running migration command
 #CMD gunicorn \
