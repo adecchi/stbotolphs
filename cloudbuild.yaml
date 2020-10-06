@@ -1,4 +1,13 @@
 steps:
+- name: 'gcr.io/cloud-builders/gcloud'
+  entrypoint: 'bash'
+  args:
+  - '-c'
+  - |
+    export POSTGRES_DB=`gcloud secrets versions access latest --secret=POSTGRES_DB --format='get(payload.data)' | base64 -d`
+    export POSTGRES_USER=`gcloud secrets versions access latest --secret=POSTGRES_USER --format='get(payload.data)' | base64 -d`
+    export POSTGRES_PASSWORD=`gcloud secrets versions access latest --secret=POSTGRES_PASSWORD --format='get(payload.data)' | base64 -d`
+    export DECCHI=`gcloud secrets versions access latest --secret=POSTGRES_PASSWORD --format='get(payload.data)' | base64 -d`
   # build the container image
 - name: "gcr.io/cloud-builders/docker"
   args: ["build", "-t", "gcr.io/direct-obelisk-291614/stbotolphs", "."]
