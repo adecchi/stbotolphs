@@ -18,8 +18,8 @@ steps:
     export DJANGO_AWS_S3_ENDPOINT_URL=`gcloud secrets versions access latest --secret=DJANGO_AWS_S3_ENDPOINT_URL --format='get(payload.data)' | base64 -d` &&
     export DJANGO_AWS_S3_REGION_NAME=`gcloud secrets versions access latest --secret=DJANGO_AWS_S3_REGION_NAME --format='get(payload.data)' | base64 -d` &&
     export DJANGO_AWS_S3_HOST=`gcloud secrets versions access latest --secret=DJANGO_AWS_S3_HOST --format='get(payload.data)' | base64 -d` &&
-    env | grep "^POSTGRES_" > /workspace/build_vars &&
-    env | grep "^DJANGO_" >> /workspace/build_vars
+    env | grep "^POSTGRES_" > /workspace/postgres_vars &&
+    env | grep "^DJANGO_" > /workspace/django_vars
 
 - id: "Load Values"
   name: 'gcr.io/cloud-builders/gcloud'
@@ -27,7 +27,8 @@ steps:
   args:
   - '-c'
   - |
-    source /workspace/build_vars &&
+    source /workspace/postgres_vars &&
+    source /workspace/django_vars &&
     sed -i 's/%POSTGRES_DB%/'$$POSTGRES_DB'/g' Dockerfile &&
     sed -i 's/%POSTGRES_USER%/'$$POSTGRES_USER'/g' Dockerfile &&
     sed -i 's/%POSTGRES_PASSWORD%/'$$POSTGRES_PASSWORD'/g' Dockerfile &&
