@@ -7,7 +7,7 @@ FROM uisautomation/python:3.7-alpine
 # To get the utility gcp-get-secret into our container from our first image
 COPY --from=0 /gcp-get-secret /usr/local/bin/
 # Postgre Configuration
-ENV POSTGRES_DB=gcp:///POSTGRES_DB
+ENV POSTGRES_DB=%POSTGRES_DB%
 ENV POSTGRES_USER=gcp:///POSTGRES_USER
 ENV POSTGRES_PASSWORD=gcp:///POSTGRES_PASSWORD
 
