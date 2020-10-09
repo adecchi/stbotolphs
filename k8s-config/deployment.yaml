@@ -18,7 +18,7 @@ spec:
         image: gcr.io/cloudsql-docker/gce-proxy:1.17
         command: ["/cloud_sql_proxy",
                   "--dir=/cloudsql",
-                  "-instances=direct-obelisk-291614:europe-west2:postgres-instance-95d49372=tcp:5432",
+                  "-instances=direct-obelisk-291614:europe-west2:postgres-instance-559d76a1=tcp:5432",
                   "-credential_file=/secrets/cloudsql/credentials.json"]
         securityContext:
           # The default Cloud SQL proxy image runs as the
