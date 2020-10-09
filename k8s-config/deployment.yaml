@@ -34,7 +34,7 @@ spec:
         ports:
         - containerPort: 8080
 
-      volume:
+      volumes:
       - name: cloudsql-instance-credentials
         secret:
           secretName: cloudsql-instance-credentials
