@@ -70,14 +70,14 @@ RUN chown -R webapp /usr/src/app && chmod -R oug-w /usr/src/app
 
 # Run everything as the unprivileged user
 USER webapp
-CMD ["tail", "-f" ,"/dev/null"]
+#CMD ["tail", "-f" ,"/dev/null"]
 # Use gunicorn as a web-server after running migration command
-#CMD gunicorn \
-#	--name botolphs \
-#	--bind :$PORT \
-#	--workers 3 \
-#	--log-level=info \
-#	--log-file=- \
-#	--access-logfile=- \
-#	--capture-output \
-#	botolphs.wsgi
+CMD gunicorn \
+	--name botolphs \
+	--bind :$PORT \
+	--workers 3 \
+	--log-level=info \
+	--log-file=- \
+	--access-logfile=- \
+	--capture-output \
+	botolphs.wsgi
