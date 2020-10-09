@@ -6,7 +6,6 @@ metadata:
 spec:
   selector:
     app: stbotolphs
-    department: engineering
   type: LoadBalancer
   ports:
   - port: 80

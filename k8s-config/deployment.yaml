@@ -32,7 +32,7 @@ spec:
       - name: stbotolphs
         image: gcr.io/direct-obelisk-291614/stbotolphs
         ports:
-        - containerPort: 8080
+        - containerPort: 8000
 
       volumes:
       - name: cloudsql-instance-credentials

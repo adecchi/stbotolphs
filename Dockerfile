@@ -14,8 +14,9 @@ ENV DJANGO_DB_NAME=%DJANGO_DB_NAME%
 ENV DJANGO_DB_USER=%DJANGO_DB_USER%
 ENV DJANGO_DB_PASSWORD=%DJANGO_DB_PASSWORD%
 ENV DJANGO_DB_CONN_MAX_AGE=60
-ENV DJANGO_DB_PORT=15432
-
+ENV DJANGO_DB_PORT=5432
+ENV DJANGO_SECRET_KEY=some-secret-key-used-only-in-development
+ENV DJANGO_PORT=8000
 # Email configuration for development SMTP server
 ENV DJANGO_EMAIL_HOST=localhost
 ENV DJANGO_EMAIL_PORT=1025
@@ -74,7 +75,7 @@ USER webapp
 # Use gunicorn as a web-server after running migration command
 CMD gunicorn \
 	--name botolphs \
-	--bind :$PORT \
+	--bind :$DJANGO_PORT \
 	--workers 3 \
 	--log-level=info \
 	--log-file=- \
