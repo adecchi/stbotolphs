@@ -6,7 +6,7 @@ metadata:
 spec:
   selector:
     app: stbotolphs
-  type: LoadBalancer
+  type: ClusterIP
   ports:
   - port: 80
     targetPort: 8000
@@ -34,5 +34,5 @@ spec:
     app: mailhog
   type: ClusterIP
   ports:
-  - port: 8025
+  - port: 8002
     targetPort: 8025
