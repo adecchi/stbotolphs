@@ -18,7 +18,7 @@ ENV DJANGO_DB_PORT=5432
 ENV DJANGO_SECRET_KEY=some-secret-key-used-only-in-development
 ENV DJANGO_PORT=8000
 # Email configuration for development SMTP server
-ENV DJANGO_EMAIL_HOST=localhost
+ENV DJANGO_EMAIL_HOST=mailhog-smtp-nlb-service
 ENV DJANGO_EMAIL_PORT=1025
 
 # Object store configuration

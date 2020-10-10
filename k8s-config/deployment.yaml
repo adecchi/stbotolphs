@@ -18,7 +18,7 @@ spec:
         image: gcr.io/cloudsql-docker/gce-proxy:1.17
         command: ["/cloud_sql_proxy",
                   "--dir=/cloudsql",
-                  "-instances=direct-obelisk-291614:europe-west2:postgres-instance-abf5b4ff=tcp:5432",
+                  "-instances=direct-obelisk-291614:europe-west2:postgres-instance-8d9a7c82=tcp:5432",
                   "-credential_file=/secrets/cloudsql/credentials.json"]
         securityContext:
           # The default Cloud SQL proxy image runs as the
@@ -38,3 +38,29 @@ spec:
       - name: cloudsql-instance-credentials
         secret:
           secretName: cloudsql-instance-credentials
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mailhog
+  namespace: stbotolphs
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: mailhog
+  template:
+    metadata:
+      labels:
+        app: mailhog
+    spec:
+      containers:
+      - name: mailhog
+        image: mailhog/mailhog
+        ports:
+        - containerPort: 1025
+          name: smtp
+        - containerPort: 8025
+          name: webadmin
