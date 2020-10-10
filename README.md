@@ -1,97 +1,167 @@
-# St Botolph's College CMS
+###  List Google Apis enabled
+``` bash
+https://console.cloud.google.com/apis/dashboard
+``` 
+or
+``` bash
+$ gcloud services list --enabled
+```
+In our project we will use the followings:
+- `container.googleapis.com`
+- `containerregistry.googleapis.com`
+- `cloudbuild.googleapis.com`
+- `compute.googleapis.com`
+- `servicenetworking.googleapis.com`
+- `cloudresourcemanager.googleapis.com`
+- `secretmanager.googleapis.com`
+- `sqladmin.googleapis.com`
 
-This repository contains the code for St Botolph's College's CMS and Dockerfile
-which can be used to package the CMS.
+# Google Auth Scope
+The following auth scope we will use in our terraform.
+- [Logging](https://www.googleapis.com/auth/logging.write)
+- [Monitoring](https://www.googleapis.com/auth/monitoring)
+- [Cloud Platform](https://www.googleapis.com/auth/cloud-platform)
+- [Compute](https://www.googleapis.com/auth/compute)
+- [SQL](https://www.googleapis.com/auth/sqlservice.admin)
+- [Storage](https://www.googleapis.com/auth/devstorage.full_control)
 
-Environment variables which can be used to configure the container can be found
-in the [settings module](botolphs/settings.py).
+### Preparing our account to deploy
 
-## Quickstart
+### Deploy Infrastructure
+Here is the list of command to execute to create the trigger in Google Cloud Build.:
+``` bash
+$ cd terraform/gcloud_cloudbuild
+$ terraform init
+$ terraform plan -out stbotolphs.plan
+$ terraform apply stbotolphs.plan
+```
+You will get an error due you need to map the Github repository with Google Cloud Build. The error provide you an URL, 
+where you only have to accept the map.
 
-> On OS X, some extra steps are required. See the "recipies" section below.
+Now, we continue creating the resto fo the infrastructure:
+``` bash
+$ cd terraform/gke
+$ terraform init
+$ terraform plan -out stbotolphs.plan
+$ terraform apply stbotolphs.plan
+```
+In case of some error, please re run terraform:
+``` bash
+$ terraform plan -out stbotolphs.plan
+$ terraform apply stbotolphs.plan
+```
+Once we finished, We have created and configured the following services:
 
-This section gives some guidance on how to spin up the CMS in development.
-Docker and docker-compose must be installed. The application can then be started
-via:
+- Google Storage Bucket
+- GKE
+- Google SQL
+- Google VPC and VPC Peering
+- Google Cloud Deploy
+- Google Secret Manager
 
-```console
-$ docker-compose build --pull
-$ docker-compose up
+### Configure Database for Django
+Copy the output and configure it in `k8s-config/deployment.yaml` in the container name `cloud-sql-proxy` under command section.
+``` bash
+$ terraform output SQL_DB_Connection_Name
+$ vim k8s-config/deployment.yaml
 ```
 
-There is a convenience service which runs an initial database migration but an
-initial superuser must be created manually. See the recipes section below.
+### Commit and deploy
+Inside [Google Cloud Build](https://console.cloud.google.com/cloud-build/) you will find the trigger that:
+- Build the image
+- Insert  the secrets inside the image
+- Create the image
+- Push the image
+- Deploy the image to EKS
 
-Once started the following sites are available:
+### Prepare Django Database
+Execute the following command to make the django migration. This procedure must be executed in any POD that name start
+with `st botolphs-`
 
-* http://localhost:8000/ - the site itself
-* http://localhost:8001/ - an object store browser (credentials in
-    [env/minio.env](env/minio.env))
-* http://localhost:8002/ - an email inbox showing all sent mail
-* http://localhost:8003/ - a web panel for the database (credentials in
-    [env/db.env](env/db.env))
-
-## Rebuilding
-
-The docker-compose configuration *DOES NOT AUTO-RELOAD* when changes are made.
-If you make changes to the CMS code you will need to restart as follows:
-
-```console
-$ docker-compose down  # Or Ctrl-C from the docker-compose up command
-$ docker-compose up --build
+``` bash
+$ gcloud container clusters get-credentials stbotolphs-gke --region europe-west2 --project [PROJECT-ID]
+$ kubectl config set-context --current --namespace=stbotolphs
+$ kubectl exec [POD-NAME] --container stbotolphs ./manage.py migrate
 ```
 
-## Testing
+### Create User
+Execute the following command to create an user. This procedure must be executed in any POD that name start
+with `st botolphs-`
 
-In development, you can test the following functionality:
-
-* Adding an image to a page should succeed and the image should be stored and
-    served from Object Storage. You can check this by visiting
-    http://localhost:8001/minio/botolphs-cms/filer_public/.
-* Adding a form to a page should succeed and should be able to send email. You
-    can check this by visiting http://localhost:8002/ which provides a "fake
-    inbox" showing all email sent by the site.
-
-## Recipes
-
-The following section provides some recipes and advice for common operations.
-
-### Creating an initial admin user
-
-See "Running management commands" below.
-
-### Accessing the object store
-
-We use minio to provide an S3-compatible object store for development. IT
-Once the application is running, a browser is available at
-http://localhost:8001/. Credentials can be found in [minio.env](env/minio.env).
-
-### Accessing sent email
-
-We use mailhog to run a development SMTP server and UI for viewing sent emails.
-Once the application is running, the inbox can be accessed at
-http://localhost:8002.
-
-### Running management commands
-
-Once the compose stack is up and running, management commands may be run in the
-following way:
-
-```console
-$ docker-compose exec webapp ./manage.py [...]
+``` bash
+$ gcloud container clusters get-credentials stbotolphs-gke --region europe-west2 --project [PROJECT-ID]
+$ kubectl config set-context --current --namespace=stbotolphs
+$ kubectl exec -i -t [POD-NAME] --container stbotolphs -- /bin/sh
+```
+Inside the container execute:
+``` bash
+$ ./manage.py createsuperuser
 ```
 
-For example, to create a new superuser:
+### Get Application Endpoint/PublicIP
+Execute the following command to get the Public IP.
+``` bash
+$ gcloud container clusters get-credentials stbotolphs-gke --region europe-west2 --project [PROJECT-ID]
+$ kubectl config set-context --current --namespace=stbotolphs
+$ kubectl get ingress stbotolphs-ingress
+```
+Once we get the Public IP, use it in any web explorer to access to the web site.
+The `stbotolphs` web page is the default web page served by our Nginx Ingress, if you want to access to the
+`sdsd` mail tool just add `/mailhog` to the end of the endpoint.
 
-```console
-$ docker-compose exec webapp ./manage.py createsuperuser
+For example:
+
+http://35.12.90.30/
+http://35.12.90.30/mailhog
+
+# Logs
+To troubleshooting you can use the following logs:
+
+Application Logs:
+``` bash
+$ gcloud container clusters get-credentials stbotolphs-gke --region europe-west2 --project [PROJECT-ID]
+$ kubectl config set-context --current --namespace=stbotolphs
+$ kubectl logs [POD-NAME] stbotolphs
+```
+SQL Proxy Logs:
+``` bash
+$ gcloud container clusters get-credentials stbotolphs-gke --region europe-west2 --project [PROJECT-ID]
+$ kubectl config set-context --current --namespace=stbotolphs
+$ kubectl logs [POD-NAME] cloud-sql-proxy
 ```
 
-### Running under OS X
+### Destroy Infrastructure
+Here is the list of command to execute:
+``` bash
+$ cd terraform/gcloud_cloudbuild
+$ terraform destroy
+$ cd terraform/gke
+$ terraform destroy -target=kubernetes_namespace.stbotolphs
+$ terraform destroy -target=google_sql_user.webapp,google_sql_user.root
+$ terraform destroy -target=google_sql_database.cms
+$ terraform destroy
+```
 
-The docker-compose configuration makes use of host networking which [has issues
-under OS X](https://github.com/docker/for-mac/issues/1031). A work around is to
-use [docker-machine](https://docs.docker.com/machine/get-started/). If
-docker-machine is used, the S3 endpoint URL in [env/webapp.env](env/webapp.env)
-needs to be modified to have the docker machine node's IP address in place of
-localhost.
+### Pending Improvements
+- Migration command perhaps cun run at start due does not affect our DB data if it run.
+- Add SSL/TLS certificates and rotation of them.
+- Password Rotation.
+- Migrate/Improve actual Secrets Manager to allow our PODs to detects passwords change. Perhaps, Vault is better.
+- Add liveness and readiness probes.
+- Create automation script to deploy all the requirements and application.
+- Create test cases.
+- Improve documentation. 
+- Improve monitoring, dashboards and alerts.
+- Improve CI/CD to allow deploy by branch, tags.
+- Decouple from the CI/CD the kubernetes configurations.
+- Create/migrate the actual Terraform code to Modules.
+- Create an option to deploy with `kubectl` in place of use Terraform.
+
+### References
+- [Default Google accounts ](https://cloud.google.com/compute/docs/access/service-accounts#default_service_account)
+- [GKE](https://cloud.google.com/kubernetes-engine/docs)
+- [Google Secrets Manager](https://cloud.google.com/secret-manager/docs)
+- [Google SQL](https://cloud.google.com/sql/docs)
+- [Google Storage](https://cloud.google.com/storage/docs)
+- [SQL Proxy](https://cloud.google.com/sql/docs/postgres/connect-kubernetes-engine)
+- [Terraform](https://www.terraform.io/docs/providers/google/guides/using_gke_with_terraform.html)
