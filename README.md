@@ -82,6 +82,8 @@ Once we finished, We have created and configured the following services:
 - Google VPC and VPC Peering
 - Google Cloud Deploy
 - Google Secret Manager
+- Helm
+- Nginx Ingress
 
 ### Configure Database for Django
 Copy the output and configure it in `k8s-config/deployment.yaml` in the container name `cloud-sql-proxy` under command section.
@@ -129,14 +131,28 @@ $ gcloud container clusters get-credentials stbotolphs-gke --region europe-west2
 $ kubectl config set-context --current --namespace=stbotolphs
 $ kubectl get ingress stbotolphs-ingress
 ```
-Once we get the Public IP, use it in any web explorer to access to the web site.
-The `stbotolphs` web page is the default web page served by our Nginx Ingress, if you want to access to the
-`sdsd` mail tool just add `/mailhog` to the end of the endpoint.
+Once we get the Public IP, we use it to configure the hosts file to then access via curl or web browser.
+Append the host endpoint entry to `/etc/hosts`
+``` bash
+$ sudo echo [INGRESS-IP] stbotolphs.decchi.com.ar >> /etc/hosts
+$ sudo echo [INGRESS-IP] mailhog.decchi.com.ar >> /etc/hosts
+```
 
-For example:
+stbotolphs cms:
+``` console
+http://stbotolphs.decchi.com.ar
+```
 
-http://35.12.90.30/
-http://35.12.90.30/mailhog
+mailhog web:
+``` console
+http://mailhog.decchi.com.ar
+```
+
+Test URL endpoint using curl.
+``` bash
+$ curl -X GET http://stbotolphs.decchi.com.ar
+$ curl -X GET http://mailhog.decchi.com.ar
+```
 
 # Logs
 To troubleshooting you can use the following logs:
@@ -160,9 +176,6 @@ Here is the list of command to execute:
 $ cd terraform/gcloud_cloudbuild
 $ terraform destroy
 $ cd terraform/gke
-$ terraform destroy -target=kubernetes_namespace.stbotolphs
-$ terraform destroy -target=google_sql_database.cms
-$ terraform destroy -target=google_sql_user.webapp -target=google_sql_user.root
 $ terraform destroy
 ```
 
