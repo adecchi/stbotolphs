@@ -1,3 +1,12 @@
+### Preconditions
+Install the following software:
+- [terraform ](https://www.terraform.io/)
+- [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
+- [google-cloud-sdk](https://cloud.google.com/sdk/docs/install)
+
+You can install using the script called `install_requeriments.sh` inside the scripts folder.
+In case of failure, read the above links.
+
 ###  List Google Apis enabled
 ``` bash
 https://console.cloud.google.com/apis/dashboard
@@ -26,6 +35,19 @@ The following auth scope we will use in our terraform.
 - [Storage](https://www.googleapis.com/auth/devstorage.full_control)
 
 ### Preparing our account to deploy
+Enable Google Cloud Build Service to connect to Github and deploy.
+So, login in [Google Console](https://console.cloud.google.com/home/dashboard) select your project and then tahe note of
+the `Project number` and `Project ID` and replace in the below command and execute.
+
+``` bash
+cloud projects add-iam-policy-binding [Project ID] --member=serviceAccount:[Project number]@cloudbuild.gserviceaccount.com --role=roles/container.developer
+```
+### Editing Terraform files
+Edit the following files and complete with your `Project ID` and `region` to use.
+``` bash
+$ vim terraform/gcloud_cloudbuild/terraform.tfvars
+$ vim terraform/gke/terraform.tfvars
+```
 
 ### Deploy Infrastructure
 Here is the list of command to execute to create the trigger in Google Cloud Build.:
@@ -45,7 +67,9 @@ $ terraform init
 $ terraform plan -out stbotolphs.plan
 $ terraform apply stbotolphs.plan
 ```
-In case of some error, please re run terraform:
+In case of some error,for example `namespaces "stbotolphs" not found` or `Error: Failed to update Ingress stbotolphs/stbotolphs-ingress because: namespaces "stbotolphs" not found
+` or others, please wait 5 minutes and rerun terraform.
+You can monitor or watch the error in [Google Cloud Build](https://console.cloud.google.com/cloud-build/)
 ``` bash
 $ terraform plan -out stbotolphs.plan
 $ terraform apply stbotolphs.plan
@@ -137,13 +161,13 @@ $ cd terraform/gcloud_cloudbuild
 $ terraform destroy
 $ cd terraform/gke
 $ terraform destroy -target=kubernetes_namespace.stbotolphs
-$ terraform destroy -target=google_sql_user.webapp,google_sql_user.root
 $ terraform destroy -target=google_sql_database.cms
+$ terraform destroy -target=google_sql_user.webapp -target=google_sql_user.root
 $ terraform destroy
 ```
 
 ### Pending Improvements
-- Migration command perhaps cun run at start due does not affect our DB data if it run.
+- Django Migration command perhaps run at start due does not affect our DB data if it run more than once.
 - Add SSL/TLS certificates and rotation of them.
 - Password Rotation.
 - Migrate/Improve actual Secrets Manager to allow our PODs to detects passwords change. Perhaps, Vault is better.
@@ -154,7 +178,8 @@ $ terraform destroy
 - Improve monitoring, dashboards and alerts.
 - Improve CI/CD to allow deploy by branch, tags.
 - Decouple from the CI/CD the kubernetes configurations.
-- Create/migrate the actual Terraform code to Modules.
+- Create/migrate the actual Terraform code to Modules, Create the Project in GCloud with Terraform.
+- Adapt Terraform to deploy differents environments like QA, STAGE, PROD.
 - Create an option to deploy with `kubectl` in place of use Terraform.
 
 ### References
