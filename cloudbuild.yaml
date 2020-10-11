@@ -1,0 +1,60 @@
+steps:
+- id: "Store Values"
+  name: 'gcr.io/cloud-builders/gcloud'
+  entrypoint: 'bash'
+  args:
+  - '-c'
+  - |
+    export POSTGRES_DB=`gcloud secrets versions access latest --secret=POSTGRES_DB --format='get(payload.data)' | base64 -d` &&
+    export POSTGRES_USER=`gcloud secrets versions access latest --secret=POSTGRES_USER --format='get(payload.data)' | base64 -d` &&
+    export POSTGRES_PASSWORD=`gcloud secrets versions access latest --secret=POSTGRES_PASSWORD --format='get(payload.data)' | base64 -d` &&
+    export DJANGO_DB_HOST=`gcloud secrets versions access latest --secret=DJANGO_DB_HOST --format='get(payload.data)' | base64 -d` &&
+    export DJANGO_DB_NAME=`gcloud secrets versions access latest --secret=DJANGO_DB_NAME --format='get(payload.data)' | base64 -d` &&
+    export DJANGO_DB_USER=`gcloud secrets versions access latest --secret=DJANGO_DB_USER --format='get(payload.data)' | base64 -d` &&
+    export DJANGO_DB_PASSWORD=`gcloud secrets versions access latest --secret=DJANGO_DB_PASSWORD --format='get(payload.data)' | base64 -d` &&
+    export DJANGO_AWS_ACCESS_KEY_ID=`gcloud secrets versions access latest --secret=DJANGO_AWS_ACCESS_KEY_ID --format='get(payload.data)' | base64 -d` &&
+    export DJANGO_AWS_SECRET_ACCESS_KEY=`gcloud secrets versions access latest --secret=DJANGO_AWS_SECRET_ACCESS_KEY --format='get(payload.data)' | base64 -d` &&
+    export DJANGO_AWS_STORAGE_BUCKET_NAME=`gcloud secrets versions access latest --secret=DJANGO_AWS_STORAGE_BUCKET_NAME --format='get(payload.data)' | base64 -d` &&
+    export DJANGO_AWS_S3_ENDPOINT_URL=`gcloud secrets versions access latest --secret=DJANGO_AWS_S3_ENDPOINT_URL --format='get(payload.data)' | base64 -d` &&
+    export DJANGO_AWS_S3_REGION_NAME=`gcloud secrets versions access latest --secret=DJANGO_AWS_S3_REGION_NAME --format='get(payload.data)' | base64 -d` &&
+    export DJANGO_AWS_S3_HOST=`gcloud secrets versions access latest --secret=DJANGO_AWS_S3_HOST --format='get(payload.data)' | base64 -d` &&
+    env | grep "^POSTGRES_" > /workspace/postgres_vars &&
+    env | grep "^DJANGO_" > /workspace/django_vars
+
+- id: "Load Values"
+  name: 'gcr.io/cloud-builders/gcloud'
+  entrypoint: 'bash'
+  args:
+  - '-c'
+  - |
+    source /workspace/postgres_vars &&
+    source /workspace/django_vars &&
+    sed -i 's#%POSTGRES_DB%#'$$POSTGRES_DB'#g' Dockerfile;
+    sed -i 's#%POSTGRES_USER%#'$$POSTGRES_USER'#g' Dockerfile;
+    sed -i 's#%POSTGRES_PASSWORD%#'$$POSTGRES_PASSWORD'#g' Dockerfile;
+    sed -i 's#%DJANGO_DB_HOST%#'$$DJANGO_DB_HOST'#g' Dockerfile;
+    sed -i 's#%DJANGO_DB_NAME%#'$$DJANGO_DB_NAME'#g' Dockerfile;
+    sed -i 's#%DJANGO_DB_USER%#'$$DJANGO_DB_USER'#g' Dockerfile;
+    sed -i 's#%DJANGO_DB_PASSWORD%#'$$DJANGO_DB_PASSWORD'#g' Dockerfile;
+    sed -i 's#%DJANGO_AWS_ACCESS_KEY_ID%#'$$DJANGO_AWS_ACCESS_KEY_ID'#g' Dockerfile;
+    sed -i 's#%DJANGO_AWS_SECRET_ACCESS_KEY%#'$$DJANGO_AWS_SECRET_ACCESS_KEY'#g' Dockerfile;
+    sed -i 's#%DJANGO_AWS_STORAGE_BUCKET_NAME%#'$$DJANGO_AWS_STORAGE_BUCKET_NAME'#g' Dockerfile;
+    sed -i 's#%DJANGO_AWS_S3_ENDPOINT_URL%#'$$DJANGO_AWS_S3_ENDPOINT_URL'#g' Dockerfile;
+    sed -i 's#%DJANGO_AWS_S3_REGION_NAME%#'$$DJANGO_AWS_S3_REGION_NAME'#g' Dockerfile;
+    sed -i 's#%DJANGO_AWS_S3_HOST%#'$$DJANGO_AWS_S3_HOST'#g' Dockerfile
+- id: "Sbuild the container image"
+  name: "gcr.io/cloud-builders/docker"
+  args: ["build", "-t", "gcr.io/direct-obelisk-291614/stbotolphs", "."]
+
+- id: "Push container image"
+  name: "gcr.io/cloud-builders/docker"
+  args: ["push", "gcr.io/direct-obelisk-291614/stbotolphs"]
+
+- id: "Deploy container image to GKE"
+  name: "gcr.io/cloud-builders/gke-deploy"
+  args:
+  - run
+  - --filename=k8s-config
+  - --image=gcr.io/direct-obelisk-291614/stbotolphs
+  - --location=europe-west2
+  - --cluster=stbotolphs-gke

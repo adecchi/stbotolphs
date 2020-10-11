@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: stbotolphs
+  namespace: stbotolphs
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: stbotolphs
+  template:
+    metadata:
+      labels:
+        app: stbotolphs
+    spec:
+      containers:
+      - name: cloud-sql-proxy
+        image: gcr.io/cloudsql-docker/gce-proxy:1.17
+        command: ["/cloud_sql_proxy",
+                  "--dir=/cloudsql",
+                  "-instances=direct-obelisk-291614:europe-west2:postgres-instance-548f64ac=tcp:5432",
+                  "-credential_file=/secrets/cloudsql/credentials.json"]
+        securityContext:
+          # The default Cloud SQL proxy image runs as the
+          # "nonroot" user and group (uid: 65532) by default.
+          runAsNonRoot: true        
+        volumeMounts:
+        - name: cloudsql-instance-credentials
+          mountPath: /secrets/cloudsql         
+          readOnly: true
+  
+      - name: stbotolphs
+        image: gcr.io/direct-obelisk-291614/stbotolphs
+        ports:
+        - containerPort: 8000
+
+      volumes:
+      - name: cloudsql-instance-credentials
+        secret:
+          secretName: cloudsql-instance-credentials
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mailhog
+  namespace: stbotolphs
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: mailhog
+  template:
+    metadata:
+      labels:
+        app: mailhog
+    spec:
+      containers:
+      - name: mailhog
+        image: mailhog/mailhog
+        ports:
+        - containerPort: 1025
+          name: smtp
+        - containerPort: 8025
+          name: webadmin

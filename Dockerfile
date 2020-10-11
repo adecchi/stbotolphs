@@ -1,9 +1,39 @@
 # Use our python alpine image to run webapp proper
 FROM uisautomation/python:3.7-alpine
 
+# Postgre Configuration
+ENV POSTGRES_DB=%POSTGRES_DB%
+ENV POSTGRES_USER=%POSTGRES_USER%
+ENV POSTGRES_PASSWORD=%POSTGRES_PASSWORD%
+
+# Database configuration. Note that the postgres container also uses these
+# values with differing names.
+ENV DJANGO_DB_ENGINE=django.db.backends.postgresql
+ENV DJANGO_DB_HOST=%DJANGO_DB_HOST%
+ENV DJANGO_DB_NAME=%DJANGO_DB_NAME%
+ENV DJANGO_DB_USER=%DJANGO_DB_USER%
+ENV DJANGO_DB_PASSWORD=%DJANGO_DB_PASSWORD%
+ENV DJANGO_DB_CONN_MAX_AGE=60
+ENV DJANGO_DB_PORT=5432
+ENV DJANGO_SECRET_KEY=some-secret-key-used-only-in-development
+ENV DJANGO_PORT=8000
+# Email configuration for development SMTP server
+ENV DJANGO_EMAIL_HOST=mailhog-smtp-nlb-service
+ENV DJANGO_EMAIL_PORT=1025
+
+# Object store configuration
+ENV DJANGO_USE_AWS=1
+ENV DJANGO_AWS_ACCESS_KEY_ID=%DJANGO_AWS_ACCESS_KEY_ID%
+ENV DJANGO_AWS_SECRET_ACCESS_KEY=%DJANGO_AWS_SECRET_ACCESS_KEY%
+ENV DJANGO_AWS_STORAGE_BUCKET_NAME=%DJANGO_AWS_STORAGE_BUCKET_NAME%
+ENV DJANGO_AWS_S3_ENDPOINT_URL=%DJANGO_AWS_S3_ENDPOINT_URL%
+ENV DJANGO_DANGEROUS_DISABLE_AWS_USE_SSL=1
+ENV DJANGO_AWS_S3_REGION_NAME=%DJANGO_AWS_S3_REGION_NAME%
+ENV DJANGO_AWS_S3_HOST=%DJANGO_AWS_S3_HOST%
+
 # Ensure packages are up to date and install some useful utilities
 RUN apk update && apk add git vim postgresql-dev libffi-dev gcc musl-dev \
-	libxml2-dev libxslt-dev libjpeg-turbo-dev
+	libxml2-dev libxslt-dev libjpeg-turbo-dev curl
 
 # From now on, work in the application directory
 WORKDIR /usr/src/app
@@ -41,11 +71,11 @@ RUN chown -R webapp /usr/src/app && chmod -R oug-w /usr/src/app
 
 # Run everything as the unprivileged user
 USER webapp
-
+#CMD ["tail", "-f" ,"/dev/null"]
 # Use gunicorn as a web-server after running migration command
 CMD gunicorn \
 	--name botolphs \
-	--bind :$PORT \
+	--bind :$DJANGO_PORT \
 	--workers 3 \
 	--log-level=info \
 	--log-file=- \
