@@ -44,17 +44,17 @@ steps:
     sed -i 's#%DJANGO_AWS_S3_HOST%#'$$DJANGO_AWS_S3_HOST'#g' Dockerfile
 - id: "Sbuild the container image"
   name: "gcr.io/cloud-builders/docker"
-  args: ["build", "-t", "gcr.io/direct-obelisk-291614/stbotolphs", "."]
+  args: ["build", "-t", "gcr.io/cambridge-adecchi/stbotolphs", "."]
 
 - id: "Push container image"
   name: "gcr.io/cloud-builders/docker"
-  args: ["push", "gcr.io/direct-obelisk-291614/stbotolphs"]
+  args: ["push", "gcr.io/cambridge-adecchi/stbotolphs"]
 
 - id: "Deploy container image to GKE"
   name: "gcr.io/cloud-builders/gke-deploy"
   args:
   - run
   - --filename=k8s-config
-  - --image=gcr.io/direct-obelisk-291614/stbotolphs
+  - --image=gcr.io/cambridge-adecchi/stbotolphs
   - --location=europe-west2
   - --cluster=stbotolphs-gke
