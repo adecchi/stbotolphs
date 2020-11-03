@@ -30,7 +30,7 @@ spec:
           readOnly: true
   
       - name: stbotolphs
-        image: gcr.io/direct-obelisk-291614/stbotolphs
+        image: gcr.io/cambridge-adecchi/stbotolphs
         ports:
         - containerPort: 8000
 
